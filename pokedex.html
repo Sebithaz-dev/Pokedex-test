@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pokédex — Kanto Region</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #E3350D;
+    --red-dark: #9B2006;
+    --red-light: #FF6B4A;
+    --screen-green: #9BBC0F;
+    --screen-dark: #0F380F;
+    --screen-mid: #306230;
+    --screen-light: #8BAC0F;
+    --beige: #F5E6C8;
+    --cream: #FFF8E7;
+    --dark: #1A0A00;
+    --gold: #FFD700;
+    --blue: #2563EB;
+    --gray: #888;
+    --plastic: #D44;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #1a1a2e;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 30px 10px;
+    font-family: 'Rajdhani', sans-serif;
+    background-image:
+      radial-gradient(ellipse at 20% 50%, rgba(227,53,13,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(37,99,235,0.08) 0%, transparent 60%),
+      repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.01) 40px, rgba(255,255,255,0.01) 41px),
+      repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.01) 40px, rgba(255,255,255,0.01) 41px);
+  }
+
+  .pokedex {
+    width: 420px;
+    background: linear-gradient(160deg, #E3350D 0%, #C02008 40%, #9B1805 100%);
+    border-radius: 20px 20px 12px 12px;
+    padding: 24px 20px 28px;
+    box-shadow:
+      0 0 0 3px #7A1004,
+      0 0 0 5px #E3350D44,
+      0 30px 80px rgba(0,0,0,0.8),
+      inset 0 2px 0 rgba(255,150,100,0.3);
+    position: relative;
+  }
+
+  /* Hinge line */
+  .pokedex::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0; right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, #7A1004, #9B1805 20%, #FFB090 50%, #9B1805 80%, #7A1004);
+    transform: translateY(-50%);
+    z-index: 5;
+  }
+
+  /* TOP HALF */
+  .top-half {
+    position: relative;
+    margin-bottom: 16px;
+  }
+
+  .indicator-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .big-eye {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #88DDFF, #2288CC 40%, #0044AA 80%, #001133);
+    border: 4px solid #fff;
+    box-shadow: 0 0 0 3px #333, 0 0 15px rgba(100,200,255,0.5);
+    position: relative;
+    flex-shrink: 0;
+    animation: eyePulse 3s ease-in-out infinite;
+  }
+
+  @keyframes eyePulse {
+    0%,100% { box-shadow: 0 0 0 3px #333, 0 0 15px rgba(100,200,255,0.5); }
+    50% { box-shadow: 0 0 0 3px #333, 0 0 25px rgba(100,200,255,0.9), 0 0 40px rgba(100,200,255,0.4); }
+  }
+
+  .big-eye::after {
+    content: '';
+    position: absolute;
+    top: 8px; left: 10px;
+    width: 12px; height: 8px;
+    background: rgba(255,255,255,0.6);
+    border-radius: 50%;
+    transform: rotate(-30deg);
+  }
+
+  .small-dots {
+    display: flex; gap: 6px;
+  }
+
+  .dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 2px solid rgba(0,0,0,0.3);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+
+  .dot-red { background: radial-gradient(circle at 40% 35%, #FF6666, #CC0000); }
+  .dot-yellow { background: radial-gradient(circle at 40% 35%, #FFEE44, #CCAA00); }
+  .dot-green { background: radial-gradient(circle at 40% 35%, #44FF66, #008822); }
+
+  .screen-container {
+    background: #2a2a2a;
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow:
+      inset 0 3px 8px rgba(0,0,0,0.8),
+      0 2px 0 rgba(255,150,100,0.2);
+    position: relative;
+  }
+
+  .screen-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 5px;
+    color: #777;
+    text-align: right;
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+  }
+
+  .main-screen {
+    background: var(--screen-dark);
+    border-radius: 6px;
+    height: 220px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
+    image-rendering: pixelated;
+  }
+
+  /* Scanline effect */
+  .main-screen::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.15) 2px,
+      rgba(0,0,0,0.15) 4px
+    );
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .pokemon-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    flex-direction: column;
+    padding: 10px;
+    position: relative;
+  }
+
+  .pokemon-sprite {
+    width: 96px;
+    height: 96px;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 0 12px rgba(155,188,15,0.6));
+    transition: all 0.3s;
+  }
+
+  .pokemon-sprite.loading {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  .pokemon-number {
+    font-family: 'Press Start 2P', monospace;
+    color: var(--screen-light);
+    font-size: 7px;
+    margin-top: 8px;
+    opacity: 0.8;
+  }
+
+  .pokemon-name-screen {
+    font-family: 'Press Start 2P', monospace;
+    color: var(--screen-green);
+    font-size: 9px;
+    margin-top: 4px;
+    letter-spacing: 1px;
+    text-shadow: 0 0 10px var(--screen-green);
+  }
+
+  .empty-state {
+    font-family: 'Press Start 2P', monospace;
+    color: var(--screen-mid);
+    font-size: 7px;
+    text-align: center;
+    line-height: 2;
+    opacity: 0.8;
+  }
+
+  /* BOTTOM HALF */
+  .bottom-half {
+    margin-top: 14px;
+  }
+
+  .info-panel {
+    background: var(--cream);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 14px;
+    min-height: 110px;
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.2);
+    border: 2px solid rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .info-panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--red), transparent);
+  }
+
+  .info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+
+  .info-name {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: var(--dark);
+    line-height: 1.6;
+  }
+
+  .info-id {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    color: var(--gray);
+  }
+
+  .type-badges {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+
+  .type-badge {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 6px;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    letter-spacing: 0.5px;
+  }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .stat-box {
+    background: rgba(0,0,0,0.06);
+    border-radius: 6px;
+    padding: 5px 8px;
+    text-align: center;
+  }
+
+  .stat-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 4px;
+    color: var(--gray);
+    margin-bottom: 3px;
+    display: block;
+  }
+
+  .stat-value {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: var(--dark);
+    font-weight: bold;
+  }
+
+  .info-desc {
+    font-size: 11px;
+    color: #555;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+
+  .placeholder-text {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    color: #bbb;
+    text-align: center;
+    padding-top: 20px;
+    line-height: 2;
+  }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .nav-pad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    width: 90px;
+    height: 90px;
+    gap: 2px;
+    flex-shrink: 0;
+  }
+
+  .nav-btn {
+    background: #2a2a2a;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.1s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #aaa;
+    font-size: 14px;
+  }
+
+  .nav-btn:active { background: #111; transform: scale(0.92); }
+  .nav-btn.center { background: #333; color: #888; font-family: 'Press Start 2P', monospace; font-size: 5px; cursor: default; }
+  .nav-btn.empty { background: transparent; pointer-events: none; }
+
+  .action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-end;
+    flex: 1;
+  }
+
+  .search-box {
+    width: 100%;
+    background: #1a1a1a;
+    border: 2px solid #333;
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--screen-green);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    outline: none;
+    transition: border-color 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .search-box::placeholder { color: #444; }
+  .search-box:focus { border-color: var(--red); box-shadow: 0 0 0 2px rgba(227,53,13,0.2); }
+
+  .btn-row {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .action-btn {
+    flex: 1;
+    background: #1a1a1a;
+    border: 2px solid #333;
+    border-radius: 8px;
+    padding: 8px 6px;
+    color: #aaa;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 5px;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.3px;
+    text-align: center;
+  }
+
+  .action-btn:hover { background: #2a2a2a; border-color: var(--red); color: var(--red-light); }
+  .action-btn:active { transform: scale(0.95); }
+
+  /* Pokemon List */
+  .list-section {
+    background: #111;
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.6);
+  }
+
+  .list-header {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 6px;
+    color: #555;
+    margin-bottom: 8px;
+    padding: 0 4px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .pokemon-list {
+    height: 160px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--red-dark) #1a1a1a;
+  }
+
+  .pokemon-list::-webkit-scrollbar { width: 4px; }
+  .pokemon-list::-webkit-scrollbar-track { background: #1a1a1a; }
+  .pokemon-list::-webkit-scrollbar-thumb { background: var(--red-dark); border-radius: 2px; }
+
+  .pokemon-item {
+    display: flex;
+    align-items: center;
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    gap: 10px;
+    border: 1px solid transparent;
+  }
+
+  .pokemon-item:hover {
+    background: rgba(227,53,13,0.15);
+    border-color: rgba(227,53,13,0.3);
+  }
+
+  .pokemon-item.active {
+    background: rgba(227,53,13,0.25);
+    border-color: var(--red);
+    box-shadow: 0 0 8px rgba(227,53,13,0.3);
+  }
+
+  .pokemon-item-num {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 5px;
+    color: #555;
+    width: 28px;
+    flex-shrink: 0;
+  }
+
+  .pokemon-item-thumb {
+    width: 28px;
+    height: 28px;
+    image-rendering: pixelated;
+    flex-shrink: 0;
+  }
+
+  .pokemon-item-name {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 6px;
+    color: #aaa;
+    flex: 1;
+  }
+
+  .pokemon-item-types {
+    display: flex;
+    gap: 3px;
+  }
+
+  .mini-type {
+    padding: 2px 5px;
+    border-radius: 10px;
+    font-size: 5px;
+    font-family: 'Press Start 2P', monospace;
+    color: white;
+    opacity: 0.9;
+  }
+
+  /* Type colors */
+  .type-normal { background: #A8A878; }
+  .type-fire { background: #F08030; }
+  .type-water { background: #6890F0; }
+  .type-electric { background: #F8D030; color: #333 !important; }
+  .type-grass { background: #78C850; }
+  .type-ice { background: #98D8D8; color: #333 !important; }
+  .type-fighting { background: #C03028; }
+  .type-poison { background: #A040A0; }
+  .type-ground { background: #E0C068; color: #333 !important; }
+  .type-flying { background: #A890F0; }
+  .type-psychic { background: #F85888; }
+  .type-bug { background: #A8B820; }
+  .type-rock { background: #B8A038; }
+  .type-ghost { background: #705898; }
+  .type-dragon { background: #7038F8; }
+
+  .caught-badge {
+    font-size: 8px;
+    margin-left: auto;
+  }
+
+  .mode-indicator {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-top: 12px;
+  }
+
+  .mode-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #333;
+    transition: all 0.3s;
+  }
+
+  .mode-dot.active { background: var(--screen-green); box-shadow: 0 0 6px var(--screen-green); }
+</style>
+</head>
+<body>
+
+<div class="pokedex">
+  <!-- TOP HALF -->
+  <div class="top-half">
+    <div class="indicator-row">
+      <div class="big-eye" id="bigEye"></div>
+      <div class="small-dots">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+      </div>
+    </div>
+
+    <div class="screen-container">
+      <div class="screen-label">GAME BOY® POKEDEX v1.0</div>
+      <div class="main-screen">
+        <div class="pokemon-display" id="pokemonDisplay">
+          <div class="empty-state">
+            SELECT A<br>POKEMON<br>TO BEGIN
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM HALF -->
+  <div class="bottom-half">
+    <div class="info-panel" id="infoPanel">
+      <div class="placeholder-text">
+        PROFESSOR OAK:<br><br>
+        CHOOSE A<br>POKEMON!
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="nav-pad">
+        <div class="nav-btn empty"></div>
+        <button class="nav-btn" onclick="navigate(-10)">▲</button>
+        <div class="nav-btn empty"></div>
+        <button class="nav-btn" onclick="navigate(-1)">◀</button>
+        <div class="nav-btn center">D-PAD</div>
+        <button class="nav-btn" onclick="navigate(1)">▶</button>
+        <div class="nav-btn empty"></div>
+        <button class="nav-btn" onclick="navigate(10)">▼</button>
+        <div class="nav-btn empty"></div>
+      </div>
+
+      <div class="action-buttons">
+        <input type="text" class="search-box" placeholder="SEARCH..." id="searchInput" oninput="filterList()" />
+        <div class="btn-row">
+          <button class="action-btn" onclick="showRandom()">RANDOM</button>
+          <button class="action-btn" onclick="toggleCaught()">CATCH!</button>
+          <button class="action-btn" onclick="showCaught()">CAUGHT</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="list-section">
+      <div class="list-header">
+        <span>KANTO DEX</span>
+        <span id="countDisplay">0 / 151 CAUGHT</span>
+      </div>
+      <div class="pokemon-list" id="pokemonList"></div>
+    </div>
+
+    <div class="mode-indicator">
+      <div class="mode-dot active" id="d1"></div>
+      <div class="mode-dot" id="d2"></div>
+      <div class="mode-dot" id="d3"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const KANTO = [
+  {id:1,name:"Bulbasaur",types:["grass","poison"],hp:45,atk:49,def:49,desc:"A strange seed was planted on its back at birth. The plant sprouts and grows with this Pokémon.",height:"0.7m",weight:"6.9kg"},
+  {id:2,name:"Ivysaur",types:["grass","poison"],hp:60,atk:62,def:63,desc:"When the bulb on its back grows large, it appears to lose the ability to stand on its hind legs.",height:"1.0m",weight:"13.0kg"},
+  {id:3,name:"Venusaur",types:["grass","poison"],hp:80,atk:82,def:83,desc:"The plant blooms when it is absorbing solar energy. It stays on the move to seek sunlight.",height:"2.0m",weight:"100.0kg"},
+  {id:4,name:"Charmander",types:["fire"],hp:39,atk:52,def:43,desc:"Obviously prefers hot places. When it rains, steam is said to spout from the tip of its tail.",height:"0.6m",weight:"8.5kg"},
+  {id:5,name:"Charmeleon",types:["fire"],hp:58,atk:64,def:58,desc:"When it swings its burning tail, it elevates the temperature to unbearably high levels.",height:"1.1m",weight:"19.0kg"},
+  {id:6,name:"Charizard",types:["fire","flying"],hp:78,atk:84,def:78,desc:"It spits fire that is hot enough to melt boulders. It may cause forest fires by blowing flames.",height:"1.7m",weight:"90.5kg"},
+  {id:7,name:"Squirtle",types:["water"],hp:44,atk:48,def:65,desc:"After birth, its back swells and hardens into a shell. It powerfully sprays foam from its mouth.",height:"0.5m",weight:"9.0kg"},
+  {id:8,name:"Wartortle",types:["water"],hp:59,atk:63,def:80,desc:"It is recognized as a symbol of longevity. If its shell has algae on it, that Wartortle is very old.",height:"1.0m",weight:"22.5kg"},
+  {id:9,name:"Blastoise",types:["water"],hp:79,atk:83,def:100,desc:"A brutal Pokémon with pressurized water jets on its shell. They are used for high speed tackles.",height:"1.6m",weight:"85.5kg"},
+  {id:10,name:"Caterpie",types:["bug"],hp:45,atk:30,def:35,desc:"Its short feet are tipped with suction pads that enable it to tirelessly climb slopes and walls.",height:"0.3m",weight:"2.9kg"},
+  {id:11,name:"Metapod",types:["bug"],hp:50,atk:20,def:55,desc:"This Pokémon is vulnerable to attack while its shell is soft, exposing its weak and tender body.",height:"0.7m",weight:"9.9kg"},
+  {id:12,name:"Butterfree",types:["bug","flying"],hp:60,atk:45,def:50,desc:"In battle, it flaps its wings at great speed to release highly toxic dust into the air.",height:"1.1m",weight:"32.0kg"},
+  {id:13,name:"Weedle",types:["bug","poison"],hp:40,atk:35,def:30,desc:"Often found in forests, eating leaves. It has a sharp venomous stinger on its head.",height:"0.3m",weight:"3.2kg"},
+  {id:14,name:"Kakuna",types:["bug","poison"],hp:45,atk:25,def:50,desc:"Almost incapable of moving, this Pokémon can only harden its shell to protect itself from foes.",height:"0.6m",weight:"10.0kg"},
+  {id:15,name:"Beedrill",types:["bug","poison"],hp:65,atk:90,def:40,desc:"Flies at high speed and attacks using its large venomous stingers on its forelegs and tail.",height:"1.0m",weight:"29.5kg"},
+  {id:16,name:"Pidgey",types:["normal","flying"],hp:40,atk:45,def:40,desc:"A common sight in forests and woods. It flaps its wings at ground level to kick up blinding sand.",height:"0.3m",weight:"1.8kg"},
+  {id:17,name:"Pidgeotto",types:["normal","flying"],hp:63,atk:60,def:55,desc:"Very protective of its sprawling territorial area, this Pokémon will fiercely peck any intruder.",height:"1.1m",weight:"30.0kg"},
+  {id:18,name:"Pidgeot",types:["normal","flying"],hp:83,atk:80,def:75,desc:"This Pokémon has a dazzling plumage of beautiful feathers. It can fly at Mach 2 speed.",height:"1.5m",weight:"39.5kg"},
+  {id:19,name:"Rattata",types:["normal"],hp:30,atk:56,def:35,desc:"Bites anything when it attacks. Small and very quick, it is a common sight in many places.",height:"0.3m",weight:"3.5kg"},
+  {id:20,name:"Raticate",types:["normal"],hp:55,atk:81,def:60,desc:"Its hind feet are webbed. They act as flippers, so it can swim in rivers and hunt for prey.",height:"0.7m",weight:"18.5kg"},
+  {id:21,name:"Spearow",types:["normal","flying"],hp:40,atk:60,def:30,desc:"Eats bugs in grassy areas. It has to flap its short wings at high speed to stay airborne.",height:"0.3m",weight:"2.0kg"},
+  {id:22,name:"Fearow",types:["normal","flying"],hp:65,atk:90,def:65,desc:"With its huge and magnificent wings, it can keep aloft without ever having to land for rest.",height:"1.2m",weight:"38.0kg"},
+  {id:23,name:"Ekans",types:["poison"],hp:35,atk:60,def:44,desc:"Moves silently and stealthily. Eats the eggs of birds, such as Spearow and Pidgey.",height:"2.0m",weight:"6.9kg"},
+  {id:24,name:"Arbok",types:["poison"],hp:60,atk:85,def:69,desc:"It is rumored that the ferocious warning markings on its belly differ from area to area.",height:"3.5m",weight:"65.0kg"},
+  {id:25,name:"Pikachu",types:["electric"],hp:35,atk:55,def:40,desc:"When several of these Pokémon gather, their electricity can build and cause lightning storms.",height:"0.4m",weight:"6.0kg"},
+  {id:26,name:"Raichu",types:["electric"],hp:60,atk:90,def:55,desc:"Its long tail serves as a ground to protect itself from its own high-voltage power.",height:"0.8m",weight:"30.0kg"},
+  {id:27,name:"Sandshrew",types:["ground"],hp:50,atk:75,def:85,desc:"Burrows deep underground in arid locations far from water. It only emerges to hunt for food.",height:"0.6m",weight:"12.0kg"},
+  {id:28,name:"Sandslash",types:["ground"],hp:75,atk:100,def:110,desc:"Curls up into a spiny ball when threatened. It can roll while curled up to attack or escape.",height:"1.0m",weight:"29.5kg"},
+  {id:29,name:"Nidoran♀",types:["poison"],hp:55,atk:47,def:52,desc:"Although small, its venomous barbs render this Pokémon dangerous. The female has smaller horns.",height:"0.4m",weight:"7.0kg"},
+  {id:30,name:"Nidorina",types:["poison"],hp:70,atk:62,def:67,desc:"The female's horn develops slowly. Prefers physical attacks such as clawing and biting.",height:"0.8m",weight:"20.0kg"},
+  {id:31,name:"Nidoqueen",types:["poison","ground"],hp:90,atk:92,def:87,desc:"Its hard scales provide strong protection. It uses its powerful tail in battle to knock away foes.",height:"1.3m",weight:"60.0kg"},
+  {id:32,name:"Nidoran♂",types:["poison"],hp:46,atk:57,def:40,desc:"Stiffens its ears to sense danger. The larger its horn, the more potent its venom.",height:"0.5m",weight:"9.0kg"},
+  {id:33,name:"Nidorino",types:["poison"],hp:61,atk:72,def:57,desc:"An aggressive Pokémon that is quick to attack. The horn on its head secretes a powerful venom.",height:"0.9m",weight:"19.5kg"},
+  {id:34,name:"Nidoking",types:["poison","ground"],hp:81,atk:102,def:77,desc:"It uses its powerful tail in battle to knock away foes, then charges in quickly to finish them.",height:"1.4m",weight:"62.0kg"},
+  {id:35,name:"Clefairy",types:["normal"],hp:70,atk:45,def:48,desc:"Thought to be the descendants of the first Pokémon. They appear to be relatives of Clefable.",height:"0.6m",weight:"7.5kg"},
+  {id:36,name:"Clefable",types:["normal"],hp:95,atk:70,def:73,desc:"A timid fairy Pokémon that is rarely seen. It will run and hide the moment it senses people.",height:"1.3m",weight:"40.0kg"},
+  {id:37,name:"Vulpix",types:["fire"],hp:38,atk:41,def:40,desc:"At the time of birth, it has just one tail. The tail splits from its tip as it grows older.",height:"0.6m",weight:"9.9kg"},
+  {id:38,name:"Ninetales",types:["fire"],hp:73,atk:76,def:75,desc:"Very smart and very vengeful. Grabbing one of its many tails could result in a 1000-year curse.",height:"1.1m",weight:"19.9kg"},
+  {id:39,name:"Jigglypuff",types:["normal"],hp:115,atk:45,def:20,desc:"When its huge eyes light up, it sings a mysteriously soothing melody that lulls its enemies to sleep.",height:"0.5m",weight:"5.5kg"},
+  {id:40,name:"Wigglytuff",types:["normal"],hp:140,atk:70,def:45,desc:"The body is soft and rubbery. When angered, it will suck in air and inflate itself to an enormous size.",height:"1.0m",weight:"12.0kg"},
+  {id:41,name:"Zubat",types:["poison","flying"],hp:40,atk:45,def:35,desc:"Forms colonies in perpetually dark places. Uses ultrasonic waves to identify and approach targets.",height:"0.8m",weight:"7.5kg"},
+  {id:42,name:"Golbat",types:["poison","flying"],hp:75,atk:80,def:70,desc:"Once it bites, it will not stop draining energy from the victim even if it gets too heavy to fly.",height:"1.6m",weight:"55.0kg"},
+  {id:43,name:"Oddish",types:["grass","poison"],hp:45,atk:50,def:55,desc:"During the day, it keeps its face buried in the ground. At night, it roams actively, scattering pollen.",height:"0.5m",weight:"5.4kg"},
+  {id:44,name:"Gloom",types:["grass","poison"],hp:60,atk:65,def:70,desc:"The fluid that oozes from its mouth isn't drool. It is a foul-smelling honey-like nectar.",height:"0.8m",weight:"8.6kg"},
+  {id:45,name:"Vileplume",types:["grass","poison"],hp:75,atk:80,def:85,desc:"The larger its petals, the more toxic pollen it contains. Its big head is heavy and hard to hold up.",height:"1.2m",weight:"18.6kg"},
+  {id:46,name:"Paras",types:["bug","grass"],hp:35,atk:70,def:55,desc:"Burrows to suck tree roots dry. The mushrooms on its back grow by drawing nutrients from the bug host.",height:"0.3m",weight:"5.4kg"},
+  {id:47,name:"Parasect",types:["bug","grass"],hp:60,atk:95,def:80,desc:"A host-parasite pair in which the parasite mushroom has taken over the host bug. Prefers damp places.",height:"1.0m",weight:"29.5kg"},
+  {id:48,name:"Venonat",types:["bug","poison"],hp:60,atk:55,def:50,desc:"Lives in the shadows of tall trees where it eats insects. It is attracted by light at night.",height:"1.0m",weight:"30.0kg"},
+  {id:49,name:"Venomoth",types:["bug","poison"],hp:70,atk:65,def:60,desc:"The dust-like scales covering its wings are color-coded to indicate the kinds of poison it has.",height:"1.5m",weight:"12.5kg"},
+  {id:50,name:"Diglett",types:["ground"],hp:10,atk:55,def:25,desc:"A Pokémon that lives underground. It is said that it was startled by a loud noise and shot up from the ground.",height:"0.2m",weight:"0.8kg"},
+  {id:51,name:"Dugtrio",types:["ground"],hp:35,atk:100,def:50,desc:"A team of three DIGLETT triplets. It triggers huge earthquakes by burrowing 60 miles underground.",height:"0.7m",weight:"33.3kg"},
+  {id:52,name:"Meowth",types:["normal"],hp:40,atk:45,def:35,desc:"Adores circular objects. Wanders the streets on a nightly basis to look for dropped loose change.",height:"0.4m",weight:"4.2kg"},
+  {id:53,name:"Persian",types:["normal"],hp:65,atk:70,def:60,desc:"Although its fur has many admirers, it is tough to raise as a pet because of its fickle meanness.",height:"1.0m",weight:"32.0kg"},
+  {id:54,name:"Psyduck",types:["water"],hp:50,atk:52,def:48,desc:"While lulling its enemies with its vacant look, this wily Pokémon will use psychokinetic powers.",height:"0.8m",weight:"19.6kg"},
+  {id:55,name:"Golduck",types:["water"],hp:80,atk:82,def:78,desc:"Often seen swimming elegantly by lake shores. It is often mistaken for the Japanese monster, Kappa.",height:"1.7m",weight:"76.6kg"},
+  {id:56,name:"Mankey",types:["fighting"],hp:40,atk:80,def:35,desc:"Extremely quick to anger. It could be docile one moment then thrashing away the next instant.",height:"0.5m",weight:"28.0kg"},
+  {id:57,name:"Primeape",types:["fighting"],hp:65,atk:105,def:60,desc:"Always furious and tenacious to boot. It will not abandon chasing its quarry until it is caught.",height:"1.0m",weight:"32.0kg"},
+  {id:58,name:"Growlithe",types:["fire"],hp:55,atk:70,def:45,desc:"Very protective of its territory. It will bark and bite to repel intruders from its space.",height:"0.7m",weight:"19.0kg"},
+  {id:59,name:"Arcanine",types:["fire"],hp:90,atk:110,def:80,desc:"A Pokémon that has been admired since the past for its beauty. It runs agilely as if on wings.",height:"1.9m",weight:"155.0kg"},
+  {id:60,name:"Poliwag",types:["water"],hp:40,atk:50,def:40,desc:"The swirl pattern on its belly is actually part of its innards showing through its thin skin.",height:"0.6m",weight:"12.4kg"},
+  {id:61,name:"Poliwhirl",types:["water"],hp:65,atk:65,def:65,desc:"Capable of living in or out of water. When out of water, it sweats to keep its body slimy.",height:"1.0m",weight:"20.0kg"},
+  {id:62,name:"Poliwrath",types:["water","fighting"],hp:90,atk:95,def:95,desc:"An adept swimmer at both the front crawl and the butterfly stroke. Easily overtakes fastest humans.",height:"1.3m",weight:"54.0kg"},
+  {id:63,name:"Abra",types:["psychic"],hp:25,atk:20,def:15,desc:"Sleeps 18 hours a day. If it senses danger, it teleports itself to safety even as it sleeps.",height:"0.9m",weight:"19.5kg"},
+  {id:64,name:"Kadabra",types:["psychic"],hp:40,atk:35,def:30,desc:"It emits special alpha waves from its body that induce headaches just by being close to it.",height:"1.3m",weight:"56.5kg"},
+  {id:65,name:"Alakazam",types:["psychic"],hp:55,atk:50,def:45,desc:"Its brain can outperform a super computer. Its intelligence quotient is said to be 5000.",height:"1.5m",weight:"48.0kg"},
+  {id:66,name:"Machop",types:["fighting"],hp:70,atk:80,def:50,desc:"Loves to build its muscles. It trains in all styles of martial arts to become even stronger.",height:"0.8m",weight:"19.5kg"},
+  {id:67,name:"Machoke",types:["fighting"],hp:80,atk:100,def:70,desc:"Its muscular body is so powerful, it must wear a power-save belt to be able to regulate its motions.",height:"1.5m",weight:"70.5kg"},
+  {id:68,name:"Machamp",types:["fighting"],hp:90,atk:130,def:80,desc:"Using its amazing muscles, it throws powerful punches that can knock the victim clear over the horizon.",height:"1.6m",weight:"130.0kg"},
+  {id:69,name:"Bellsprout",types:["grass","poison"],hp:50,atk:75,def:35,desc:"A carnivorous Pokémon that traps and eats bugs. It uses its root feet to soak up needed moisture.",height:"0.7m",weight:"4.0kg"},
+  {id:70,name:"Weepinbell",types:["grass","poison"],hp:65,atk:90,def:50,desc:"It spits out a digestive fluid that melts everything. Even if it's spit out at an angle, it will still hit.",height:"1.0m",weight:"6.4kg"},
+  {id:71,name:"Victreebel",types:["grass","poison"],hp:80,atk:105,def:65,desc:"Said to live in huge colonies deep in jungles, although no one has ever returned from there.",height:"1.7m",weight:"15.5kg"},
+  {id:72,name:"Tentacool",types:["water","poison"],hp:40,atk:40,def:35,desc:"Largely composed of water. It can effortlessly absorb seawater and restore its round form.",height:"0.9m",weight:"45.5kg"},
+  {id:73,name:"Tentacruel",types:["water","poison"],hp:80,atk:70,def:65,desc:"The tentacles are normally kept short. On hunts, they are extended to ensnare and immobilize prey.",height:"1.6m",weight:"55.0kg"},
+  {id:74,name:"Geodude",types:["rock","ground"],hp:40,atk:80,def:100,desc:"Found in fields and mountains. Mistaking them for boulders, people often step on them.",height:"0.4m",weight:"20.0kg"},
+  {id:75,name:"Graveler",types:["rock","ground"],hp:55,atk:95,def:115,desc:"Rolls down slopes to move. It rolls over any obstacle without slowing or changing its direction.",height:"1.0m",weight:"105.0kg"},
+  {id:76,name:"Golem",types:["rock","ground"],hp:80,atk:120,def:130,desc:"Its boulder-like body is extremely hard. It can easily withstand dynamite blasts without any damage.",height:"1.4m",weight:"300.0kg"},
+  {id:77,name:"Ponyta",types:["fire"],hp:50,atk:85,def:55,desc:"Its legs grow strong while it runs around with its parent. It can clear obstacles higher than its head.",height:"1.0m",weight:"30.0kg"},
+  {id:78,name:"Rapidash",types:["fire"],hp:65,atk:100,def:70,desc:"Very competitive, this Pokémon will chase anything that moves fast in the hopes of racing it.",height:"1.7m",weight:"95.0kg"},
+  {id:79,name:"Slowpoke",types:["water","psychic"],hp:90,atk:65,def:65,desc:"Incredibly slow and dopey. It takes 5 seconds for it to feel pain when under attack.",height:"1.2m",weight:"36.0kg"},
+  {id:80,name:"Slowbro",types:["water","psychic"],hp:95,atk:75,def:110,desc:"The Shellder that is latched onto Slowpoke's tail is said to feed on the host's leftover scraps.",height:"1.6m",weight:"78.5kg"},
+  {id:81,name:"Magnemite",types:["electric"],hp:25,atk:35,def:70,desc:"Uses anti-gravity to stay suspended. Appears without warning and uses electric attacks.",height:"0.3m",weight:"6.0kg"},
+  {id:82,name:"Magneton",types:["electric"],hp:50,atk:60,def:95,desc:"Formed by several MAGNEMITE linked together. They frequently appear when sunspots flare up.",height:"1.0m",weight:"60.0kg"},
+  {id:83,name:"Farfetch'd",types:["normal","flying"],hp:52,atk:90,def:55,desc:"The stalk of green onion it carries is its weapon. The stalk is used more skillfully than any sword.",height:"0.8m",weight:"15.0kg"},
+  {id:84,name:"Doduo",types:["normal","flying"],hp:35,atk:85,def:45,desc:"A bird that makes up for its poor flying with its fast foot speed. Leaves giant footprints.",height:"1.4m",weight:"39.2kg"},
+  {id:85,name:"Dodrio",types:["normal","flying"],hp:60,atk:110,def:70,desc:"Uses its three brains to execute complex plans. While one head sleeps, the others stay awake.",height:"1.8m",weight:"85.2kg"},
+  {id:86,name:"Seel",types:["water"],hp:65,atk:45,def:55,desc:"The protruding horn on its head is sharp. It can cut through floes, however thick they may be.",height:"1.1m",weight:"90.0kg"},
+  {id:87,name:"Dewgong",types:["water","ice"],hp:90,atk:70,def:80,desc:"Loves to snooze on bitterly cold ice. The sight of it sleeping on a glacier was mistakenly thought to be a mermaid.",height:"1.7m",weight:"120.0kg"},
+  {id:88,name:"Grimer",types:["poison"],hp:80,atk:80,def:50,desc:"Appears in filthy areas. Thrives by sucking up polluted sludge that is pumped out of factories.",height:"0.9m",weight:"30.0kg"},
+  {id:89,name:"Muk",types:["poison"],hp:105,atk:105,def:75,desc:"Thickly covered with a filthy, vile sludge. It is so toxic, even its footprints contain poison.",height:"1.2m",weight:"30.0kg"},
+  {id:90,name:"Shellder",types:["water"],hp:30,atk:65,def:100,desc:"Its hard shell repels any kind of attack. It is vulnerable only when its shell is open.",height:"0.3m",weight:"4.0kg"},
+  {id:91,name:"Cloyster",types:["water","ice"],hp:50,atk:95,def:180,desc:"When attacked, it launches its horns in quick volleys. Its innards have never been seen.",height:"1.5m",weight:"132.5kg"},
+  {id:92,name:"Gastly",types:["ghost","poison"],hp:30,atk:35,def:30,desc:"Almost invisible, this gaseous Pokémon cloaks the target and puts it to sleep without notice.",height:"1.3m",weight:"0.1kg"},
+  {id:93,name:"Haunter",types:["ghost","poison"],hp:45,atk:50,def:45,desc:"Because of its ability to slip through block walls, it is said to be from another dimension.",height:"1.6m",weight:"0.1kg"},
+  {id:94,name:"Gengar",types:["ghost","poison"],hp:60,atk:65,def:60,desc:"Under a full moon, this Pokémon likes to mimic the shadows of people and laugh at their fright.",height:"1.5m",weight:"40.5kg"},
+  {id:95,name:"Onix",types:["rock","ground"],hp:35,atk:45,def:160,desc:"As it grows, the stone portions of its body harden to become similar to a diamond, albeit colored black.",height:"8.8m",weight:"210.0kg"},
+  {id:96,name:"Drowzee",types:["psychic"],hp:60,atk:48,def:45,desc:"Puts enemies to sleep then eats their dreams. Occasionally gets sick from eating bad dreams.",height:"1.0m",weight:"32.4kg"},
+  {id:97,name:"Hypno",types:["psychic"],hp:85,atk:73,def:70,desc:"When it locks eyes with an enemy, it will use a mix of PSI moves such as HYPNOSIS and CONFUSION.",height:"1.6m",weight:"75.6kg"},
+  {id:98,name:"Krabby",types:["water"],hp:30,atk:105,def:90,desc:"Its pincers are not only powerful weapons, they are used to communicate with others of its kind.",height:"0.4m",weight:"6.5kg"},
+  {id:99,name:"Kingler",types:["water"],hp:55,atk:130,def:115,desc:"The large pincer has 10000 hp of crushing power. However, its huge size makes it unwieldy to use.",height:"1.3m",weight:"60.0kg"},
+  {id:100,name:"Voltorb",types:["electric"],hp:40,atk:30,def:50,desc:"Usually found in power plants. Easily mistaken for a Poke Ball, it has zapped many people.",height:"0.5m",weight:"10.4kg"},
+  {id:101,name:"Electrode",types:["electric"],hp:60,atk:50,def:70,desc:"Stores electric energy under very high pressure. Often explodes with little or no provocation.",height:"1.2m",weight:"66.6kg"},
+  {id:102,name:"Exeggcute",types:["grass","psychic"],hp:60,atk:40,def:80,desc:"Often mistaken for eggs. When disturbed, they quickly gather and attack in swarms.",height:"0.4m",weight:"2.5kg"},
+  {id:103,name:"Exeggutor",types:["grass","psychic"],hp:95,atk:95,def:85,desc:"Legend has it that on rare occasions, one of its heads will drop off and continue living on its own.",height:"2.0m",weight:"120.0kg"},
+  {id:104,name:"Cubone",types:["ground"],hp:50,atk:50,def:95,desc:"Because it never removes its skull helmet, no one has ever seen this Pokémon's real face.",height:"0.4m",weight:"6.5kg"},
+  {id:105,name:"Marowak",types:["ground"],hp:60,atk:80,def:110,desc:"The bone it holds is its key weapon. It throws the bone skillfully like a boomerang to KO targets.",height:"1.0m",weight:"45.0kg"},
+  {id:106,name:"Hitmonlee",types:["fighting"],hp:50,atk:120,def:53,desc:"When in a hurry, its legs lengthen progressively. It runs smoothly with extra-long, loping strides.",height:"1.5m",weight:"49.8kg"},
+  {id:107,name:"Hitmonchan",types:["fighting"],hp:50,atk:105,def:79,desc:"While apparently doing nothing, it fires punches in lightning-fast volleys that are impossible to see.",height:"1.4m",weight:"50.2kg"},
+  {id:108,name:"Lickitung",types:["normal"],hp:90,atk:55,def:75,desc:"Its tongue can be extended like a chameleon's. It leaves a tingling sensation when it licks enemies.",height:"1.2m",weight:"65.5kg"},
+  {id:109,name:"Koffing",types:["poison"],hp:40,atk:65,def:95,desc:"Because it stores several kinds of toxic gases in its body, it is prone to exploding without warning.",height:"0.6m",weight:"1.0kg"},
+  {id:110,name:"Weezing",types:["poison"],hp:65,atk:90,def:120,desc:"Where two kinds of poison gases meet, two KOFFING gases can fuse into one WEEZING over many years.",height:"1.2m",weight:"9.5kg"},
+  {id:111,name:"Rhyhorn",types:["ground","rock"],hp:80,atk:85,def:95,desc:"Its massive bones are 1000 times harder than human bones. It can easily knock a trailer flying.",height:"1.0m",weight:"115.0kg"},
+  {id:112,name:"Rhydon",types:["ground","rock"],hp:105,atk:130,def:120,desc:"Protected by an armor-like hide, it is capable of living in molten lava of 3,600 degrees.",height:"1.9m",weight:"120.0kg"},
+  {id:113,name:"Chansey",types:["normal"],hp:250,atk:5,def:5,desc:"A rare and elusive Pokémon that is said to bring happiness to those who manage to get it.",height:"1.1m",weight:"34.6kg"},
+  {id:114,name:"Tangela",types:["grass"],hp:65,atk:55,def:115,desc:"The whole body is swathed with wide vines that are similar to seaweed. Its vines shake as it walks.",height:"1.0m",weight:"35.0kg"},
+  {id:115,name:"Kangaskhan",types:["normal"],hp:105,atk:95,def:80,desc:"The infant rarely ventures out of its parent's pouch until it is 3 years old.",height:"2.2m",weight:"80.0kg"},
+  {id:116,name:"Horsea",types:["water"],hp:30,atk:40,def:70,desc:"Known to shoot down flying bugs with precision blasts of ink from the surface of the water.",height:"0.4m",weight:"8.0kg"},
+  {id:117,name:"Seadra",types:["water"],hp:55,atk:65,def:95,desc:"Capable of swimming backwards by rapidly flapping its wing-like pectoral fins and stout tail.",height:"1.2m",weight:"25.0kg"},
+  {id:118,name:"Goldeen",types:["water"],hp:45,atk:67,def:60,desc:"Its tail fin billows like an elegant dress, giving it the nickname the Water Queen.",height:"0.6m",weight:"15.0kg"},
+  {id:119,name:"Seaking",types:["water"],hp:80,atk:92,def:65,desc:"In autumn, its body becomes more fatty in preparing to propose to a mate. It takes on beautiful colors.",height:"1.3m",weight:"39.0kg"},
+  {id:120,name:"Staryu",types:["water"],hp:30,atk:45,def:55,desc:"An enigmatic Pokémon that can effortlessly regenerate any appendage it loses in battle.",height:"0.8m",weight:"34.5kg"},
+  {id:121,name:"Starmie",types:["water","psychic"],hp:60,atk:75,def:85,desc:"Its central core glows with the seven colors of the rainbow. Some people value it as a gem.",height:"1.1m",weight:"80.0kg"},
+  {id:122,name:"Mr. Mime",types:["psychic"],hp:40,atk:45,def:65,desc:"If interrupted while miming, it will slap around the offender with its broad hands.",height:"1.3m",weight:"54.5kg"},
+  {id:123,name:"Scyther",types:["bug","flying"],hp:70,atk:110,def:80,desc:"With ninja-like agility and speed, it can create the illusion that there is more than one of it.",height:"1.5m",weight:"56.0kg"},
+  {id:124,name:"Jynx",types:["ice","psychic"],hp:65,atk:50,def:35,desc:"It seductively wiggles its hips as it walks. It can cause people to dance in unison with it.",height:"1.4m",weight:"40.6kg"},
+  {id:125,name:"Electabuzz",types:["electric"],hp:65,atk:83,def:57,desc:"Normally found near power plants, they can wander away and cause blackouts in cities.",height:"1.1m",weight:"30.0kg"},
+  {id:126,name:"Magmar",types:["fire"],hp:65,atk:95,def:57,desc:"Its body always burns with an orange glow that enables it to hide perfectly among flames.",height:"1.3m",weight:"44.5kg"},
+  {id:127,name:"Pinsir",types:["bug"],hp:65,atk:125,def:100,desc:"If it grips an enemy with its pincers, it won't stop squeezing until the victim is torn in half.",height:"1.5m",weight:"55.0kg"},
+  {id:128,name:"Tauros",types:["normal"],hp:75,atk:100,def:95,desc:"When it targets an enemy, it charges furiously while whipping its body with its long tails.",height:"1.4m",weight:"88.4kg"},
+  {id:129,name:"Magikarp",types:["water"],hp:20,atk:10,def:55,desc:"In the distant past, it was somewhat stronger than the horribly weak MAGIKARP of today.",height:"0.9m",weight:"10.0kg"},
+  {id:130,name:"Gyarados",types:["water","flying"],hp:95,atk:125,def:79,desc:"Rarely seen in the wild. Huge and vicious, it is capable of destroying entire cities in a rage.",height:"6.5m",weight:"235.0kg"},
+  {id:131,name:"Lapras",types:["water","ice"],hp:130,atk:85,def:80,desc:"A gentle soul that can understand human speech. It can ferry people across the sea on its back.",height:"2.5m",weight:"220.0kg"},
+  {id:132,name:"Ditto",types:["normal"],hp:48,atk:48,def:48,desc:"Capable of copying an enemy's genetic code to instantly transform itself into a duplicate of the enemy.",height:"0.3m",weight:"4.0kg"},
+  {id:133,name:"Eevee",types:["normal"],hp:55,atk:55,def:50,desc:"Its genetic code is irregular. It may mutate if it is exposed to radiation from element stones.",height:"0.3m",weight:"6.5kg"},
+  {id:134,name:"Vaporeon",types:["water"],hp:130,atk:65,def:60,desc:"Adopted the water element. When its cell composition changes, it can melt inconspicuously into water.",height:"1.0m",weight:"29.0kg"},
+  {id:135,name:"Jolteon",types:["electric"],hp:65,atk:65,def:60,desc:"It accumulates negative ions in the atmosphere to blast out 10000-volt lightning bolts.",height:"0.8m",weight:"24.5kg"},
+  {id:136,name:"Flareon",types:["fire"],hp:65,atk:130,def:60,desc:"When storing thermal energy in its body, its temperature could soar to over 1600 degrees.",height:"0.9m",weight:"25.0kg"},
+  {id:137,name:"Porygon",types:["normal"],hp:65,atk:60,def:70,desc:"A Pokémon that consists entirely of programming code. It is capable of moving freely in cyberspace.",height:"0.8m",weight:"36.5kg"},
+  {id:138,name:"Omanyte",types:["rock","water"],hp:35,atk:40,def:100,desc:"Although long extinct, in rare cases it can be genetically resurrected from fossils.",height:"0.4m",weight:"7.5kg"},
+  {id:139,name:"Omastar",types:["rock","water"],hp:70,atk:60,def:125,desc:"A prehistoric Pokémon that died out when its heavy shell made it impossible to catch prey.",height:"1.0m",weight:"35.0kg"},
+  {id:140,name:"Kabuto",types:["rock","water"],hp:30,atk:80,def:90,desc:"A Pokémon that was resurrected from a fossil found in what was once the ocean floor eons ago.",height:"0.5m",weight:"11.5kg"},
+  {id:141,name:"Kabutops",types:["rock","water"],hp:60,atk:115,def:105,desc:"Its sleek shape is perfect for swimming. It slashes prey with its claws and drains the body fluids.",height:"1.3m",weight:"40.5kg"},
+  {id:142,name:"Aerodactyl",types:["rock","flying"],hp:80,atk:105,def:65,desc:"A ferocious, prehistoric Pokémon that goes for the enemy's throat with its serrated saw-like fangs.",height:"1.8m",weight:"59.0kg"},
+  {id:143,name:"Snorlax",types:["normal"],hp:160,atk:110,def:65,desc:"Very lazy. Just eats and sleeps. As its rotund bulk builds, it becomes steadily more slothful.",height:"2.1m",weight:"460.0kg"},
+  {id:144,name:"Articuno",types:["ice","flying"],hp:90,atk:85,def:100,desc:"A legendary bird Pokémon. It can create blizzards by freezing moisture in the air.",height:"1.7m",weight:"55.4kg"},
+  {id:145,name:"Zapdos",types:["electric","flying"],hp:90,atk:90,def:85,desc:"A legendary bird Pokémon. It is said to appear from clouds while dropping enormous lightning bolts.",height:"1.6m",weight:"52.6kg"},
+  {id:146,name:"Moltres",types:["fire","flying"],hp:90,atk:100,def:90,desc:"Known as the legendary bird of fire. Every flap of its wings creates a dazzling flash of flames.",height:"2.0m",weight:"60.0kg"},
+  {id:147,name:"Dratini",types:["dragon"],hp:41,atk:64,def:45,desc:"Long thought to be a mythical Pokémon, it is extremely rare. Very few people have seen one.",height:"1.8m",weight:"3.3kg"},
+  {id:148,name:"Dragonair",types:["dragon"],hp:61,atk:84,def:65,desc:"A mystical Pokémon that exudes a gentle aura. Has the ability to change climate conditions.",height:"4.0m",weight:"16.5kg"},
+  {id:149,name:"Dragonite",types:["dragon","flying"],hp:91,atk:134,def:95,desc:"An extremely rarely seen marine Pokémon. Its intelligence is said to match that of humans.",height:"2.2m",weight:"210.0kg"},
+  {id:150,name:"Mewtwo",types:["psychic"],hp:106,atk:110,def:90,desc:"It was created by a scientist after years of horrific gene splicing and DNA engineering experiments.",height:"2.0m",weight:"122.0kg"},
+  {id:151,name:"Mew",types:["psychic"],hp:100,atk:100,def:100,desc:"So rare that it is still said to be a mirage by many experts. Only a few people have seen it worldwide.",height:"0.4m",weight:"4.0kg"},
+];
+
+const TYPE_COLORS = {
+  normal:'#A8A878',fire:'#F08030',water:'#6890F0',electric:'#F8D030',
+  grass:'#78C850',ice:'#98D8D8',fighting:'#C03028',poison:'#A040A0',
+  ground:'#E0C068',flying:'#A890F0',psychic:'#F85888',bug:'#A8B820',
+  rock:'#B8A038',ghost:'#705898',dragon:'#7038F8'
+};
+
+let currentIndex = -1;
+let caught = new Set(JSON.parse(localStorage.getItem('caughtPokemon') || '[]'));
+let filtered = [...KANTO];
+let showingCaught = false;
+
+function saveCaught() {
+  localStorage.setItem('caughtPokemon', JSON.stringify([...caught]));
+}
+
+function updateCount() {
+  document.getElementById('countDisplay').textContent = `${caught.size} / 151 CAUGHT`;
+}
+
+function getSpriteUrl(id) {
+  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
+}
+
+function renderList() {
+  const list = document.getElementById('pokemonList');
+  list.innerHTML = '';
+  filtered.forEach((p, i) => {
+    const item = document.createElement('div');
+    item.className = 'pokemon-item' + (currentIndex !== -1 && KANTO[currentIndex]?.id === p.id ? ' active' : '');
+    item.innerHTML = `
+      <span class="pokemon-item-num">#${String(p.id).padStart(3,'0')}</span>
+      <img class="pokemon-item-thumb" src="${getSpriteUrl(p.id)}" alt="${p.name}" />
+      <span class="pokemon-item-name">${p.name.toUpperCase()}</span>
+      <div class="pokemon-item-types">
+        ${p.types.map(t => `<span class="mini-type type-${t}" style="background:${TYPE_COLORS[t]}">${t.slice(0,3).toUpperCase()}</span>`).join('')}
+      </div>
+      <span class="caught-badge">${caught.has(p.id) ? '✓' : '○'}</span>
+    `;
+    item.onclick = () => selectPokemon(KANTO.indexOf(p));
+    list.appendChild(item);
+  });
+}
+
+function selectPokemon(idx) {
+  if (idx < 0 || idx >= KANTO.length) return;
+  currentIndex = idx;
+  const p = KANTO[idx];
+  
+  // Update screen
+  const display = document.getElementById('pokemonDisplay');
+  display.innerHTML = `
+    <img class="pokemon-sprite loading" id="spriteImg" src="${getSpriteUrl(p.id)}" alt="${p.name}" />
+    <div class="pokemon-number">#${String(p.id).padStart(3,'0')}</div>
+    <div class="pokemon-name-screen">${p.name.toUpperCase()}</div>
+  `;
+  const img = document.getElementById('spriteImg');
+  img.onload = () => img.classList.remove('loading');
+
+  // Update info panel
+  const panel = document.getElementById('infoPanel');
+  panel.innerHTML = `
+    <div class="info-header">
+      <div class="info-name">${p.name.toUpperCase()}</div>
+      <div class="info-id">#${String(p.id).padStart(3,'0')}</div>
+    </div>
+    <div class="type-badges">
+      ${p.types.map(t => `<span class="type-badge type-${t}" style="background:${TYPE_COLORS[t]}">${t.toUpperCase()}</span>`).join('')}
+    </div>
+    <div class="stats-row">
+      <div class="stat-box"><span class="stat-label">HP</span><span class="stat-value">${p.hp}</span></div>
+      <div class="stat-box"><span class="stat-label">ATK</span><span class="stat-value">${p.atk}</span></div>
+      <div class="stat-box"><span class="stat-label">DEF</span><span class="stat-value">${p.def}</span></div>
+    </div>
+    <div class="info-desc">${p.desc}</div>
+  `;
+
+  renderList();
+  updateCount();
+
+  // Scroll active item into view
+  const activeItem = document.querySelector('.pokemon-item.active');
+  if (activeItem) activeItem.scrollIntoView({ block: 'nearest' });
+}
+
+function navigate(delta) {
+  if (filtered.length === 0) return;
+  let base = currentIndex;
+  if (base === -1) {
+    base = 0;
+  } else {
+    const curId = KANTO[currentIndex]?.id;
+    const pos = filtered.findIndex(p => p.id === curId);
+    const newPos = Math.max(0, Math.min(filtered.length - 1, pos + delta));
+    base = KANTO.indexOf(filtered[newPos]);
+  }
+  selectPokemon(base);
+}
+
+function filterList() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  showingCaught = false;
+  if (!q) {
+    filtered = [...KANTO];
+  } else {
+    filtered = KANTO.filter(p =>
+      p.name.toLowerCase().includes(q) ||
+      String(p.id).includes(q) ||
+      p.types.some(t => t.includes(q))
+    );
+  }
+  renderList();
+}
+
+function showRandom() {
+  const idx = Math.floor(Math.random() * KANTO.length);
+  filtered = [...KANTO];
+  document.getElementById('searchInput').value = '';
+  selectPokemon(idx);
+}
+
+function toggleCaught() {
+  if (currentIndex === -1) return;
+  const id = KANTO[currentIndex].id;
+  if (caught.has(id)) {
+    caught.delete(id);
+  } else {
+    caught.add(id);
+  }
+  saveCaught();
+  updateCount();
+  renderList();
+}
+
+function showCaught() {
+  showingCaught = !showingCaught;
+  document.getElementById('searchInput').value = '';
+  if (showingCaught) {
+    filtered = KANTO.filter(p => caught.has(p.id));
+  } else {
+    filtered = [...KANTO];
+  }
+  renderList();
+}
+
+// Init
+renderList();
+updateCount();
+</script>
+</body>
+</html>
